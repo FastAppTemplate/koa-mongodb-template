@@ -8,7 +8,19 @@
 - 使用 ESLint 作为代码检测工具
 - 使用 prettier 美化代码格式，推荐使用 VSCode 进行开发，并下载 Prettier 扩展，代码在保存的时候将自动进行格式化。
 
-## How to use
+## 如何使用
+
+### 开发前准备
+
+根目录下的 .env 文件的内容如下：
+
+```plain
+CONNECTION_STRING=
+JWT_SECRET=
+```
+
+- 第一个是连接到 mongodb 的 url，这个再开发之前是需要补充。
+- 另外 JWT_SECRET 是 [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) `jwt.sign` 方法的第二个参数，自己根据情况设定某个字符串。
 
 ### Development
 
