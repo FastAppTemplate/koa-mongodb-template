@@ -3,7 +3,7 @@ import Joi from "joi";
 import jsonwebtoken from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-import User from "@models/user";
+import { users } from "@models/index";
 
 class TokenController {
   /**
@@ -12,24 +12,9 @@ class TokenController {
    * @returns
    */
   private _findUserByUsername = async (username: string) => {
-    // 查找用户信息
-    interface UserData {
-      _id: string;
-      username: string;
-      password: string;
-    }
-    type FindOneResultType = UserData | null;
-    /** 用户输入的账号与密码 */
-    const userData = (await User.findOne(
-      {
-        username,
-      },
-      {
-        _id: 1,
-        username: 1,
-        password: 1,
-      }
-    )) as FindOneResultType;
+    const userData = await users.findOne({
+      username,
+    });
 
     return userData;
   };

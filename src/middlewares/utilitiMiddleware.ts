@@ -12,7 +12,10 @@ export async function getPaginationInfo(ctx: ParameterizedContext, next: Next): 
   let limit = 10;
   let skip = 0;
 
-  const { perPage, page } = ctx.query;
+  const { perPage, page } = ctx.query as {
+    perPage?: string;
+    page?: string;
+  };
 
   if (perPage) {
     limit = Math.max(parseInt(perPage), 1);

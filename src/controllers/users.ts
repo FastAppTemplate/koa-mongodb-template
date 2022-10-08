@@ -1,6 +1,7 @@
+import { ObjectId } from "mongodb";
 import type { ParameterizedContext, DefaultState } from "koa";
 
-import User from "@models/user";
+import { users } from "@models/index";
 
 class UsersController {
   /** 获取用户列表 */
@@ -12,7 +13,7 @@ class UsersController {
       };
     }>
   ) {
-    ctx.body = await User.find().limit(ctx.state.pagination.limit).skip(ctx.state.pagination.skip);
+    ctx.body = await users.find().limit(ctx.state.pagination.limit).skip(ctx.state.pagination.skip);
   }
 
   /** 获取某个用户的信息 */
@@ -27,7 +28,7 @@ class UsersController {
     >
   ) => {
     const userId = ctx.params.userId;
-    const userInfo = await User.findById(userId);
+    const userInfo = await users.findOne({ _id: new ObjectId(userId) });
     if (userInfo) {
       ctx.body = userInfo;
     } else {

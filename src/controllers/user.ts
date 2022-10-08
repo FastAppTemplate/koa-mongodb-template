@@ -1,8 +1,9 @@
 import type { ParameterizedContext } from "koa";
 import Joi from "joi";
 import bcrypt from "bcrypt";
+import { ObjectId } from "mongodb";
 
-import User from "@models/user";
+import { users } from "@models/index";
 
 interface State {
   user: {
@@ -43,18 +44,18 @@ class UserController {
     const value = result.value as UserSchama;
 
     // 检查用户名是否已经存在
-    const isExist = await User.findOne({
+    const isExist = await users.findOne({
       username: value.username,
-    }).exec();
+    });
     if (isExist) {
       ctx.throw(409, "用户已存在");
     }
 
-    await new User(
+    await users.insertOne(
       Object.assign({}, value, {
         password: await this._hashingPassword(value.password),
       })
-    ).save();
+    );
 
     ctx.status = 204;
   };
@@ -62,7 +63,8 @@ class UserController {
   /** 获取当前登录用户的信息 */
   getAuthenticatedUserInfo = async (ctx: ParameterizedContext<State>) => {
     const userId = ctx.state.user._id as string;
-    const userInfo = await User.findById(userId);
+    const userInfo = await users.findOne({ _id: new ObjectId(userId) });
+
     if (userInfo) {
       ctx.body = userInfo;
     } else {
@@ -86,7 +88,11 @@ class UserController {
       ctx.throw(422, validateResult.error);
     }
 
-    const userData = await User.findByIdAndUpdate(userId, validateResult.value);
+    const userData = await users.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: validateResult.value }
+    );
+
     if (userData) {
       ctx.status = 204;
     } else {
@@ -96,7 +102,7 @@ class UserController {
 
   /** 删除当前认证用户 */
   deleteAuthenticatedUser = async (ctx: ParameterizedContext<State>) => {
-    const user = await User.findByIdAndRemove(ctx.state.user._id);
+    const user = await users.deleteOne({ _id: new ObjectId(ctx.state.user._id) });
     if (user) {
       ctx.status = 204;
     } else {
